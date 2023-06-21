@@ -7,6 +7,7 @@ import path from 'node:path'
 import { fileURLToPath } from "node:url";
 import ejs from "ejs"
 import passport from 'passport';
+import cors from 'cors';
 
 const SQLiteStore = SQLiteStoreModule(session);
 const app = express();
@@ -24,8 +25,10 @@ app.use(session({
 
 app.use(passport.authenticate('session'));
 
-app.use(express.json());
+
+app.use(cors({origin: 'http://localhost:3001'}))
 app.use(express.urlencoded({extended:true}))
+app.use(express.json());
 
 app.set('view engine', 'ejs');
 

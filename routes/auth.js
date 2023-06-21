@@ -81,10 +81,6 @@ passport.deserializeUser(function(user, cb) {
 
 const authRouter = express.Router();
 
-authRouter.get('/login', function(req, res) {
-    return res.render('login');
-});
-
 authRouter.get('/login/federated/facebook', passport.authenticate('facebook'));
 
 authRouter.get('/oauth2/redirect/facebook', passport.authenticate('facebook', {
@@ -92,12 +88,8 @@ authRouter.get('/oauth2/redirect/facebook', passport.authenticate('facebook', {
     failureRedirect: '/login'
 }));
 
-authRouter.post('/login/password', passport.authenticate('local', {
-    // successReturnToOrRedirect: '/test',
-    failureRedirect: '/login',
-    failureMessage: true
-  }),(req,res)=>{
-    res.send('ok success')
+authRouter.post('/login/password', passport.authenticate('local'),(req,res)=>{
+    res.send('You are authenticated !')
   });
 
 
