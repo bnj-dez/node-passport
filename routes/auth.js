@@ -1,10 +1,29 @@
 import express from "express";
 import passport from 'passport';
 import FacebookStrategy from 'passport-facebook';
+import LocalStrategy from 'passport-local';
+import crypto from 'node:crypto';
 import { db } from '../db.js';
 import dotenv from "dotenv";
 
 dotenv.config();
+
+passport.use(new LocalStrategy(function verify(username, password, cb) {
+    db.get('SELECT * FROM users WHERE username = ?', [ username ], function(err, row) {
+      if (err) { return cb(err); }
+      if (!row) { return cb(null, false, { message: 'Incorrect username or password.' }); }
+  
+      crypto.pbkdf2(password, row.salt, 310000, 32, 'sha256', function(err, hashedPassword) {
+        if (err) { return cb(err); }
+        if (!crypto.timingSafeEqual(row.hashed_password, hashedPassword)) {
+          return cb(null, false, { message: 'Incorrect username or password.' });
+        }
+        return cb(null, row);
+      });
+    });
+  }));
+
+
 
 passport.use(new FacebookStrategy({
     clientID: process.env['FACEBOOK_CLIENT_ID'],
@@ -12,7 +31,6 @@ passport.use(new FacebookStrategy({
     callbackURL: '/oauth2/redirect/facebook',
     state: true
 }, function verify(accessToken, refreshToken, profile, cb) {
-    console.log('test passport');
     db.get('SELECT * FROM federated_credentials WHERE provider = ? AND subject = ?', [
     'https://www.facebook.com',
     profile.id
@@ -64,7 +82,7 @@ passport.deserializeUser(function(user, cb) {
 const authRouter = express.Router();
 
 authRouter.get('/login', function(req, res) {
-    return res.send('login');
+    return res.render('login');
 });
 
 authRouter.get('/login/federated/facebook', passport.authenticate('facebook'));
@@ -73,5 +91,15 @@ authRouter.get('/oauth2/redirect/facebook', passport.authenticate('facebook', {
     successReturnToOrRedirect: '/test',
     failureRedirect: '/login'
 }));
+
+authRouter.post('/login/password', passport.authenticate('local', {
+    // successReturnToOrRedirect: '/test',
+    failureRedirect: '/login',
+    failureMessage: true
+  }),(req,res)=>{
+    res.send('ok success')
+  });
+
+
     
 export {authRouter};

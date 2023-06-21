@@ -5,6 +5,8 @@ import session from 'express-session';
 import SQLiteStoreModule from 'connect-sqlite3';
 import path from 'node:path'
 import { fileURLToPath } from "node:url";
+import ejs from "ejs"
+import passport from 'passport';
 
 const SQLiteStore = SQLiteStoreModule(session);
 const app = express();
@@ -20,9 +22,14 @@ app.use(session({
   store: new SQLiteStore({ db: 'sessions.db', dir: './var/db' })
 }));
 
-app.use(express.json());
+app.use(passport.authenticate('session'));
 
-app.use('/test', (req, res) => {
+app.use(express.json());
+app.use(express.urlencoded({extended:true}))
+
+app.set('view engine', 'ejs');
+
+app.get('/test', (req, res) => {
   res.send('Ok');
 });
 
