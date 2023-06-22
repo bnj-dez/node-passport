@@ -5,11 +5,14 @@ import { fileURLToPath } from "node:url";
 import passport from "passport";
 import cors from "cors";
 import router from "./routes/routes.js"
+import { config } from "dotenv";
+import MongoStore from 'connect-mongo';
 
 import("../db.js");
 
 const app = express();
 const port = 3000;
+config();
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 app.use(express.static(path.join(__dirname, "..", "public")));
@@ -19,6 +22,7 @@ app.use(
     secret: "keyboard cat",
     resave: false,
     saveUninitialized: false,
+    store: MongoStore.create({ mongoUrl:"mongodb+srv://" + process.env.DB_USER + "@form.ghmv5pa.mongodb.net/Passport" }),
   })
 );
 

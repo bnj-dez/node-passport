@@ -5,8 +5,9 @@ const { Schema, model } = mongoose;
 const UserSchema = new Schema({
   id: String,
   username: String,
-  email: String,
-  phone: String,
+  email:  String,
+  phone:  String ,
+  fb_token: String,
   password: {
     sha256: String,
     argon2: String

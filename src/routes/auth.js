@@ -29,77 +29,45 @@ passport.use(
   })
 );
 
-passport.use(new FacebookStrategy({
-    clientID: process.env.FACEBOOK_CLIENT_ID,
-    clientSecret: process.env.FACEBOOK_CLIENT_SECRET,
-    callbackURL: '/login/oauth2/redirect/facebook',
-    state: true
-}, async function verify(accessToken, refreshToken, profile, cb) {
-  console.log('test');
-//     db.get('SELECT * FROM federated_credentials WHERE provider = ? AND subject = ?', [
-//     'https://www.facebook.com',
-//     profile.id
-//     ], function(err, row) {
-//         if (err) { return cb(err); }
+passport.use(
+  new FacebookStrategy(
+    {
+      clientID: process.env.FACEBOOK_CLIENT_ID,
+      clientSecret: process.env.FACEBOOK_CLIENT_SECRET,
+      callbackURL: "/login/oauth2/redirect/facebook",
+      profileFields: ["emails", "displayName"],
+      state: true,
+    },
+    async function verify(accessToken, refreshToken, profile, cb) {
+      // const email = profile.emails[0].value;
+      try {
+        const userExist = UserModel.findOne({ fb_token: profile.id });
 
-//         if (!row) {
-//             db.run('INSERT INTO users (name) VALUES (?)', [
-//             profile.displayName
-//             ], function(err) {
-//             if (err) { return cb(err); }
+        if (!userExist) {
+          // const userExist = await UserModel.findOne({ email: profile.emails[0].value });
+          // if(userExist) return cb('Cet email est déja utilisé pour un compte, veuillez tenter de vous connecté');
 
-//             var id = this.lastID;
-//             db.run('INSERT INTO federated_credentials (user_id, provider, subject) VALUES (?, ?, ?)', [
-//                 id,
-//                 'https://www.facebook.com',
-//                 profile.id
-//             ], function(err) {
-//                 if (err) { return cb(err); }
-//                 var user = {
-//                 id: id,
-//                 name: profile.displayName
-//                 };
-//                 return cb(null, user);
-//             });
-//         });
-//     } else {
-//         db.get('SELECT * FROM users WHERE id = ?', [ row.user_id ], function(err, row) {
-//         if (err) { return cb(err); }
-//         if (!row) { return cb(null, false); }
-//         return cb(null, row);
-//         });
-//     }
-//     });
-  const federatedCredential = await FederatedCredentialModel.findOne({ provider: 'https://www.facebook.com', subject: profile.id });
+          const userToAdd = new UserModel({
+            username: profile.displayName,
+            email: profile.emails[0].value,
+            fb_token: profile.id,
+          });
+          await userToAdd.save();
 
-  // if (!row) {
-  //   db.run('INSERT INTO users (name) VALUES (?)', [
-  //   profile.displayName
-  //   ], function(err) {
-  //   if (err) { return cb(err); }
+          return cb(null, userToAdd);
+        }
 
-  //   var id = this.lastID;
-  //   db.run('INSERT INTO federated_credentials (user_id, provider, subject) VALUES (?, ?, ?)', [
-  //       id,
-  //       'https://www.facebook.com',
-  //       profile.id
-  //   ], function(err) {
-  //       if (err) { return cb(err); }
-  //       var user = {
-  //       id: id,
-  //       name: profile.displayName
-  //       };
-  //       return cb(null, user);
-  //   });
-  // });
-  // }
-  // return cb(null, user);
-
-}));
+        return cb(null, userExist);
+      } catch (error) {
+        return cb(error.message)
+      }
+    }
+  )
+);
 
 passport.serializeUser(function (user, cb) {
   process.nextTick(function () {
-    cb(null, { id: user.id, username: user.username });
+    cb(null, { ...user });
   });
 });
 
@@ -110,20 +78,23 @@ passport.deserializeUser(function (user, cb) {
 });
 
 const authRouter = express.Router();
+authRouter.use(passport.session());
 
-authRouter.get('/federated/facebook', passport.authenticate('facebook'));
-
-authRouter.get('/oauth2/redirect/facebook', passport.authenticate('facebook', {
-    successReturnToOrRedirect: '/test',
-    failureRedirect: '/login'
-}));
-
-authRouter.post(
-  "/password",
-  passport.authenticate("local"),
-  (req, res) => {
-    res.send("You are authenticated !");
-  }
+authRouter.get(
+  "/federated/facebook",
+  passport.authenticate("facebook", { scope: ["email"] })
 );
 
-export {authRouter};
+authRouter.get(
+  "/oauth2/redirect/facebook",
+  passport.authenticate("facebook", {
+    successReturnToOrRedirect: "/test",
+    failureRedirect: "/login",
+  })
+);
+
+authRouter.post("/password", passport.authenticate("local"), (req, res) => {
+  res.send("You are authenticated !");
+});
+
+export { authRouter };
