@@ -1,5 +1,4 @@
 import express from "express";
-// import { authRouter } from "../routes/auth.js";
 import session from "express-session";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -26,7 +25,6 @@ app.use(
 app.use(passport.authenticate("session"));
 
 app.use(cors({ origin: "http://localhost:3001" }));
-app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
 app.get("/test", (req, res) => {
