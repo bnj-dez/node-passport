@@ -10,6 +10,6 @@ const router = express.Router();
 // router.delete()
 
 router.post("/users", addUser);
-router.use('/', authRouter)
+router.use('/login', authRouter)
 
 export default router;

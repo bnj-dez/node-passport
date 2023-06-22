@@ -7,7 +7,10 @@ const UserSchema = new Schema({
   username: String,
   email: String,
   phone: String,
-  password: String,
+  password: {
+    sha256: String,
+    argon2: String
+  },
 });
 
 export const UserModel = model("user", UserSchema);
