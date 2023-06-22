@@ -5,6 +5,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import passport from "passport";
 import cors from "cors";
+import router from "./routes/routes.js"
 
 import("../db.js");
 
@@ -32,7 +33,7 @@ app.get("/test", (req, res) => {
   res.send("Ok");
 });
 
-// app.use("/",); //authRouter
+app.use("/", router ); 
 
 app.listen(port, () => {
   console.log("Serveur en écoute sur le port " + port);
