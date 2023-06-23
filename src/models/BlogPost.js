@@ -6,7 +6,12 @@ const BlogPostSchema = new Schema({
   id: String,
   title: String,
   content: String,
-  user_id: { type: mongoose.Schema.Types.ObjectId, ref: "user" },
+  comments_id : [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "comment"
+    }
+  ],
 });
 
 export const BlogPostModel = model("blogPost", BlogPostSchema);

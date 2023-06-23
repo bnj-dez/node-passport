@@ -4,9 +4,7 @@ const { Schema, model } = mongoose;
 
 const CommentSchema = new Schema({
   id: String,
-  content: String,
-  user_id: { type: mongoose.Schema.Types.ObjectId, ref: "user" },
-  blog_post_id: { type: mongoose.Schema.Types.ObjectId, ref: "blogPost" },
+  content: String
 });
 
 export const CommentModel = model("comment", CommentSchema);

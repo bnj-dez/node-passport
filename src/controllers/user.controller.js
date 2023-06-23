@@ -30,7 +30,9 @@ export const addUser = async (req, res) => {
 export const getUserPosts = async (req, res) => {
   const { userId } = req.params;
 
-  const posts = await BlogPostModel.find({user_id: userId});
+  const user = await UserModel.findById(userId);
+
+  const posts = await BlogPostModel.find({ _id: { $in: user.blog_posts_id }});
 
   return res.send({
     error: false,
@@ -41,7 +43,9 @@ export const getUserPosts = async (req, res) => {
 export const getUserComments = async (req, res) => {
   const { userId } = req.params;
 
-  const comments = await CommentModel.find({user_id: userId});
+  const user = await UserModel.findById(userId);
+
+  const comments = await CommentModel.find({ _id: { $in: user.comments_id }});
 
   return res.send({
     error: false,
