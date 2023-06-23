@@ -1,15 +1,16 @@
 import express from "express";
 import { authRouter } from "./auth.js";
-
-import addUser from "../controllers/addUser.js";
+import { addUser } from "../controllers/user.controller.js";
+import { postRouter } from "./post.js";
+import { userRouter } from "./user.js";
+import { commentRouter } from "./comment.js";
 
 const router = express.Router();
 
-// router.post()
-// router.get()
-// router.delete()
-
-router.post("/users", addUser);
+router.post("/register", addUser);
 router.use('/login', authRouter)
+router.use('/posts', postRouter)
+router.use('/users', userRouter)
+router.use('/comments', commentRouter)
 
 export default router;

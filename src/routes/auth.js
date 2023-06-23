@@ -6,7 +6,6 @@ import dotenv from "dotenv";
 import { UserModel } from "../models/User.js";
 import { createHmac } from "node:crypto";
 import argon2 from "argon2";
-import { FederatedCredentialModel } from "../models/FederetedCredential.js";
 
 dotenv.config();
 
@@ -67,7 +66,7 @@ passport.use(
 
 passport.serializeUser(function (user, cb) {
   process.nextTick(function () {
-    cb(null, { ...user });
+    cb(null, { email: user.email, fb_token: user.fb_token, id: user._id });
   });
 });
 
@@ -94,7 +93,7 @@ authRouter.get(
 );
 
 authRouter.post("/password", passport.authenticate("local"), (req, res) => {
-  res.send("You are authenticated !");
+  return res.send({error: false, message:"You are authenticated !"});
 });
 
 export { authRouter };

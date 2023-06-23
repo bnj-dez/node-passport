@@ -31,10 +31,6 @@ app.use(passport.authenticate("session"));
 app.use(cors({ origin: "http://localhost:3001" }));
 app.use(express.json());
 
-app.get("/test", (req, res) => {
-  res.send("Ok");
-});
-
 app.use("/", router ); 
 
 app.listen(port, () => {
