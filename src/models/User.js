@@ -8,13 +8,13 @@ const UserSchema = new Schema({
   email:  String,
   phone:  String ,
   fb_token: String,
-  blog_posts_id : [
+  blog_posts_id: [
     {
       type: mongoose.Schema.Types.ObjectId,
       ref: "blogPost"
     }
   ],
-  comments_id : [
+  comments_id: [
     {
       type: mongoose.Schema.Types.ObjectId,
       ref: "comment"

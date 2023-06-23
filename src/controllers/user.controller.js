@@ -52,3 +52,16 @@ export const getUserComments = async (req, res) => {
     data: comments,
   });
 }
+
+export const deleteUser = async (req, res) => {
+  const user = await UserModel.findById(req.user.id);
+
+  await BlogPostModel.deleteMany({ _id: { $in: user.blog_posts_id }});
+  await CommentModel.deleteMany({ _id: { $in: user.comments_id }});
+  await UserModel.deleteOne({_id: user._id});
+  
+  return res.send({
+    error: false,
+    message: "Your account has been deleted successfully",
+  })  
+}
