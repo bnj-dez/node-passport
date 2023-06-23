@@ -40,9 +40,11 @@ passport.use(
     async function verify(accessToken, refreshToken, profile, cb) {
       // const email = profile.emails[0].value;
       try {
-        const userExist = UserModel.findOne({ fb_token: profile.id });
+        const userExist = await UserModel.findOne({ fb_token: profile.id });
+        console.log(userExist)
 
         if (!userExist) {
+
           // const userExist = await UserModel.findOne({ email: profile.emails[0].value });
           // if(userExist) return cb('Cet email est déja utilisé pour un compte, veuillez tenter de vous connecté');
 
@@ -55,6 +57,7 @@ passport.use(
 
           return cb(null, userToAdd);
         }
+        console.log("coucou4")
 
         return cb(null, userExist);
       } catch (error) {

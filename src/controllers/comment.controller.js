@@ -14,7 +14,7 @@ export const updateComment = async (req, res) => {
     
     const comment = await CommentModel.findById(commentId);
     // Case comment not found for specified id
-    if(!comment) return res.this.status(404).send({error: 404, message: 'No comment find for id "commentId".'})
+    if(!comment) return res.status(404).send({error: 404, message: 'No comment find for id "commentId".'})
 
     // Case comment found but user owner are not the same than connected one in session
     if(comment.user_id.valueOf() !== req.user.id) return res.status(403).send({error: 403, message: 'You\'re not the owner of this comment.'}) 
